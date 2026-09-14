@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Restaurante Palmeiras — Cardápio Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar entre modo claro e escuro">
+  <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+</button>
+
+<div class="app">
+
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg" alt="" />
+      </div>
+      <div class="brand-text">
+        <span class="brand-eyebrow">Cardápio digital</span>
+        <h1 class="brand-name">Restaurante Palmeiras</h1>
+      </div>
+    </div>
+    <p class="brand-tag">Scoppia che la victoria è nostra</p>
+  </header>
+
+  <div class="layout">
+
+    <main class="menu-panel">
+
+      <div class="menu-panel-head">
+        <h2>Escolha seu pedido</h2>
+        <div class="search-row">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="search-input" type="search" placeholder="Buscar por nome do prato, bebida ou vinho…" autocomplete="off" />
+        </div>
+      </div>
+
+      <nav class="category-tabs" id="category-tabs" aria-label="Categorias do cardápio"></nav>
+
+      <div class="toolbar">
+        <label class="toolbar-field sort-field">
+          <span>Ordenar</span>
+          <span class="sort-select-wrap">
+            <select id="sort-select" class="sort-select">
+              <option value="padrao">Padrão</option>
+              <option value="nome-asc">Nome (A–Z)</option>
+              <option value="preco-asc">Preço (menor → maior)</option>
+              <option value="preco-desc">Preço (maior → menor)</option>
+            </select>
+            <svg class="sort-select-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </label>
+        <label class="toolbar-field toolbar-price">
+          <span>Até <strong id="price-max-label"></strong></span>
+          <input id="price-max" type="range" step="1" />
+        </label>
+        <span class="results-count" id="results-count"></span>
+      </div>
+
+      <p class="empty-state" id="empty-state" hidden>Nenhum produto encontrado. Tente outra busca ou categoria.</p>
+      <div class="product-grid" id="product-grid"></div>
+
+    </main>
+
+    <aside class="order-panel" aria-label="Seu pedido">
+      <h2>Seu Pedido</h2>
+
+      <p class="order-empty" id="order-empty">Seu carrinho está vazio. Adicione itens do cardápio ao lado.</p>
+      <ul class="order-items" id="order-items"></ul>
+
+      <div class="order-totals">
+        <div class="totals-row">
+          <span>Subtotal</span>
+          <span id="subtotal-value">R$ 0,00</span>
+        </div>
+
+        <label class="garcom-toggle">
+          <input type="checkbox" id="garcom-checkbox" checked />
+          <span>Taxa do garçom (10%, opcional)</span>
+        </label>
+
+        <div class="totals-row" id="garcom-row">
+          <span>Garçom (10%)</span>
+          <span id="garcom-value">R$ 0,00</span>
+        </div>
+
+        <div class="totals-row total-row">
+          <span>Total</span>
+          <span id="total-value">R$ 0,00</span>
+        </div>
+      </div>
+
+      <form class="customer-form" id="customer-form" novalidate>
+        <h3>Dados do cliente</h3>
+        <label class="field">
+          <span>Nome</span>
+          <input id="cliente-nome" type="text" placeholder="Seu nome" />
+        </label>
+        <label class="field">
+          <span>Mesa</span>
+          <input id="cliente-mesa" type="text" placeholder="Nº da mesa" />
+        </label>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <button type="submit" class="btn-finalizar" id="btn-finalizar">Finalizar pedido</button>
+      </form>
+    </aside>
+
+  </div>
+
+  <footer class="app-footer">
+    <p>Cardápio digital independente — não afiliado à S.E. Palmeiras.</p>
+  </footer>
+
+</div>
+
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" type="button" aria-label="Fechar resumo">×</button>
+    <p class="modal-kicker">Pedido confirmado</p>
+    <h2 id="modal-title" class="modal-order-number"></h2>
+
+    <dl class="resumo-cliente" id="resumo-cliente"></dl>
+
+    <ul class="resumo-itens" id="resumo-itens"></ul>
+
+    <div class="resumo-totais" id="resumo-totais"></div>
+
+    <button class="btn-novo-pedido" id="btn-novo-pedido" type="button">Fazer novo pedido</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="banco.js"></script>
+<script src="script.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
