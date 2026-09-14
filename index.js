@@ -30,6 +30,18 @@
     garcomRow: document.getElementById("garcom-row"),
     garcomValue: document.getElementById("garcom-value"),
     totalValue: document.getElementById("total-value"),
+    descontoRow: document.getElementById("desconto-row"),
+    descontoValue: document.getElementById("desconto-value"),
+    cupomInput: document.getElementById("cupom-input"),
+    btnAplicarCupom: document.getElementById("btn-aplicar-cupom"),
+    cupomFeedback: document.getElementById("cupom-feedback"),
+    cupomAplicado: document.getElementById("cupom-aplicado"),
+    cupomAplicadoTexto: document.getElementById("cupom-aplicado-texto"),
+    btnRemoverCupom: document.getElementById("btn-remover-cupom"),
+    pagamentoSelect: document.getElementById("pagamento-select"),
+    trocoBlock: document.getElementById("troco-block"),
+    valorPagoInput: document.getElementById("valor-pago-input"),
+    trocoInfo: document.getElementById("troco-info"),
 
     customerForm: document.getElementById("customer-form"),
     clienteNome: document.getElementById("cliente-nome"),
@@ -99,6 +111,9 @@
         pedido,
         cobrarGarcom: app.isCobrarGarcom(),
         cliente,
+        formaPagamento: app.getFormaPagamento(),
+        valorPago: app.getValorPago(),
+        cupom: app.getCupomAtual(),
         tema: document.documentElement.classList.contains("light") ? "light" : "dark",
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
@@ -135,6 +150,17 @@
       if (dados.cliente && (dados.cliente.nome || dados.cliente.mesa)) {
         el.clienteNome.value = dados.cliente.nome || "";
         el.clienteMesa.value = dados.cliente.mesa || "";
+      }
+
+      if (dados.formaPagamento) {
+        app.setFormaPagamento(dados.formaPagamento);
+        if (dados.formaPagamento === "dinheiro" && dados.valorPago !== null && dados.valorPago !== undefined) {
+          app.setValorPago(dados.valorPago);
+        }
+      }
+
+      if (dados.cupom && dados.cupom.codigo) {
+        app.aplicarCupom(dados.cupom.codigo);
       }
     } catch (e) {
       /* dados corrompidos — ignora e começa do zero */
@@ -309,7 +335,96 @@
     el.totalValue.textContent = formatarMoeda(totais.total);
     el.garcomCheckbox.checked = totais.cobrarGarcom;
     el.garcomRow.style.opacity = totais.cobrarGarcom ? "1" : "0.45";
+
+    el.descontoRow.hidden = totais.desconto <= 0;
+    el.descontoValue.textContent = "− " + formatarMoeda(totais.desconto);
+
+    const cupom = totais.cupom;
+    el.cupomAplicado.hidden = !cupom;
+    el.cupomAplicadoTexto.textContent = cupom
+      ? cupom.codigo + " • " + cupom.descricao
+      : "";
+
+    const forma = totais.formaPagamento;
+    el.pagamentoSelect.value = forma || "";
+    el.trocoBlock.hidden = forma !== "dinheiro";
+
+    if (forma === "dinheiro") {
+      const valorPago = totais.valorPago;
+      if (valorPago === null) {
+        el.trocoInfo.textContent = "Informe quanto o cliente vai pagar para calcular o troco.";
+        el.trocoInfo.className = "troco-info troco-pendente";
+      } else if (totais.troco >= 0) {
+        el.trocoInfo.textContent = "Troco: " + formatarMoeda(totais.troco);
+        el.trocoInfo.className = "troco-info troco-ok";
+      } else {
+        el.trocoInfo.textContent = "Valor insuficiente. Faltam " + formatarMoeda(Math.abs(totais.troco)) + ".";
+        el.trocoInfo.className = "troco-info troco-erro";
+      }
+    } else {
+      el.trocoInfo.textContent = "";
+      el.trocoInfo.className = "troco-info";
+    }
   }
+
+  function renderFormasPagamento() {
+    const formas = app.getFormasPagamento();
+    el.pagamentoSelect.innerHTML = '<option value="">Selecione uma forma de pagamento</option>' +
+      formas.map((forma) => `<option value="${forma.id}">${escapeHtml(forma.label)}</option>`).join("");
+  }
+
+  function mostrarFeedbackCupom(mensagem, sucesso) {
+    el.cupomFeedback.textContent = mensagem;
+    el.cupomFeedback.hidden = !mensagem;
+    el.cupomFeedback.className = "cupom-feedback " + (sucesso ? "cupom-sucesso" : "cupom-erro");
+  }
+
+  el.btnAplicarCupom.addEventListener("click", () => {
+    const resultado = app.aplicarCupom(el.cupomInput.value);
+    if (!resultado.sucesso) {
+      mostrarFeedbackCupom(resultado.erro, false);
+      el.cupomInput.focus();
+      return;
+    }
+    el.cupomInput.value = resultado.cupom.codigo;
+    mostrarFeedbackCupom("Cupom aplicado com sucesso!", true);
+    renderTotals();
+    salvarEstado();
+  });
+
+  el.cupomInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      el.btnAplicarCupom.click();
+    }
+  });
+
+  el.btnRemoverCupom.addEventListener("click", () => {
+    app.removerCupom();
+    el.cupomInput.value = "";
+    mostrarFeedbackCupom("Cupom removido.", true);
+    renderTotals();
+    salvarEstado();
+  });
+
+  el.pagamentoSelect.addEventListener("change", (e) => {
+    const resultado = app.setFormaPagamento(e.target.value);
+    if (!resultado.sucesso) {
+      mostrarToast(resultado.erro);
+      return;
+    }
+    if (e.target.value !== "dinheiro") {
+      el.valorPagoInput.value = "";
+    }
+    renderTotals();
+    salvarEstado();
+  });
+
+  el.valorPagoInput.addEventListener("input", (e) => {
+    app.setValorPago(e.target.value);
+    renderTotals();
+    salvarEstado();
+  });
 
   el.orderItems.addEventListener("click", (e) => {
     const incBtn = e.target.closest("[data-inc]");
@@ -391,11 +506,22 @@
 
     let totaisHtml = `
       <div class="totals-row"><span>Subtotal</span><span>${formatarMoeda(resumo.subtotal)}</span></div>`;
+    if (resumo.desconto > 0) {
+      totaisHtml += `<div class="totals-row desconto-resumo"><span>Desconto${resumo.cupom ? ` (${escapeHtml(resumo.cupom.codigo)})` : ""}</span><span>− ${formatarMoeda(resumo.desconto)}</span></div>`;
+    }
     if (resumo.cobrarGarcom) {
       totaisHtml += `<div class="totals-row"><span>Garçom (10%)</span><span>${formatarMoeda(resumo.taxaGarcom)}</span></div>`;
     }
     totaisHtml += `<div class="totals-row total-row"><span>Total</span><span>${formatarMoeda(resumo.total)}</span></div>`;
     el.resumoTotais.innerHTML = totaisHtml;
+
+    const pagamentoTexto = resumo.formaPagamentoLabel || "Não informado";
+    let pagamentoHtml = `<strong>Pagamento:</strong> ${escapeHtml(pagamentoTexto)}`;
+    if (resumo.formaPagamento === "dinheiro" && resumo.valorPago !== null) {
+      pagamentoHtml += ` • Pago: ${formatarMoeda(resumo.valorPago)} • Troco: ${formatarMoeda(resumo.troco)}`;
+    }
+    const resumoPagamento = document.getElementById("resumo-pagamento");
+    if (resumoPagamento) resumoPagamento.innerHTML = pagamentoHtml;
 
     el.modalOverlay.hidden = false;
   }
@@ -438,6 +564,7 @@
       return;
     }
     inicializarFaixaDePreco();
+    renderFormasPagamento();
     carregarEstado();
     renderCategoryTabs();
     renderProducts();

@@ -895,3 +895,368 @@ html.light .toast {
     transition: none !important;
   }
 }
+
+
+/* ------------------------------------------------------------------ */
+/* Pagamento e cupons — acabamento integrado ao tema Palmeiras        */
+/* ------------------------------------------------------------------ */
+.pagamento-block {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(20, 96, 61, 0.22), rgba(201, 162, 74, 0.06));
+}
+
+.pagamento-block h3 {
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.92rem;
+}
+
+.pagamento-block .field > span:first-child {
+  font-weight: 600;
+}
+
+.pagamento-block select,
+.pagamento-block input[type="number"] {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  font: inherit;
+  outline: none;
+}
+
+.pagamento-block select:focus,
+.pagamento-block input[type="number"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 162, 74, 0.14);
+}
+
+.troco-block {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-soft);
+}
+
+.troco-info {
+  margin-top: 8px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: rgba(201, 162, 74, 0.10);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.troco-ok {
+  border: 1px solid rgba(42, 150, 96, 0.35);
+  color: var(--accent-strong);
+  background: rgba(42, 150, 96, 0.12);
+  font-weight: 700;
+}
+
+.troco-erro {
+  border: 1px solid rgba(193, 39, 45, 0.35);
+  color: var(--vermelho-500);
+  background: rgba(193, 39, 45, 0.08);
+  font-weight: 600;
+}
+
+.cupom-row {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-md);
+  background: rgba(201, 162, 74, 0.055);
+}
+
+.field-cupom > span {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-strong);
+  font-size: 0.84rem;
+}
+
+.cupom-input-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px;
+}
+
+.cupom-input-wrap input {
+  min-width: 0;
+  padding: 10px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.cupom-input-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 162, 74, 0.14);
+}
+
+.btn-cupom {
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0 13px;
+  background: var(--accent);
+  color: var(--verde-950);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.btn-cupom:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.cupom-feedback {
+  margin: 7px 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.cupom-sucesso {
+  color: var(--accent-strong);
+}
+
+.cupom-erro {
+  color: var(--vermelho-500);
+}
+
+.cupom-aplicado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(42, 150, 96, 0.35);
+  background: rgba(42, 150, 96, 0.10);
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.cupom-aplicado button {
+  border: 0;
+  background: transparent;
+  color: var(--vermelho-500);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.desconto-resumo span:last-child,
+#desconto-value {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.resumo-pagamento {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  background: rgba(201, 162, 74, 0.08);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+html.light .pagamento-block {
+  background: linear-gradient(135deg, rgba(20, 96, 61, 0.06), rgba(201, 162, 74, 0.08));
+}
+
+html.light .cupom-row {
+  background: rgba(20, 96, 61, 0.035);
+}
+
+html.light .btn-cupom {
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .cupom-input-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-cupom {
+    min-height: 42px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Ajustes de usabilidade — painel "Seu Pedido"                      */
+/* ------------------------------------------------------------------ */
+@media (min-width: 900px) {
+  .layout {
+    align-items: start;
+  }
+
+  .order-panel {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+  }
+
+  .order-panel::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .order-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .order-panel::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 999px;
+  }
+
+  .order-items {
+    max-height: 230px;
+  }
+}
+
+/* Observações do pedido — mesmo acabamento dos demais campos */
+.field-obs {
+  margin-top: 14px;
+}
+
+.field-obs > span {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-strong);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.field-obs textarea {
+  width: 100%;
+  min-height: 76px;
+  max-height: 120px;
+  resize: vertical;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.field-obs textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.field-obs textarea:hover {
+  border-color: var(--accent);
+}
+
+.field-obs textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 162, 74, 0.14);
+  background: var(--panel-bg);
+}
+
+html.light .field-obs textarea:focus {
+  box-shadow: 0 0 0 3px rgba(20, 96, 61, 0.12);
+}
+
+/* Deixa o bloco de pedido mais compacto sem perder legibilidade */
+.order-totals {
+  margin-top: 14px;
+}
+
+.pagamento-block {
+  margin-top: 12px;
+}
+
+.customer-form {
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+@media (max-width: 899px) {
+  .order-panel {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Ajuste final — carrinho sempre visível e lista de itens destacada  */
+/* ------------------------------------------------------------------ */
+@media (min-width: 900px) {
+  .order-panel {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  /* A lista dos produtos selecionados continua sempre aparecendo.
+     Só cria rolagem própria quando houver muitos itens. */
+  .order-items {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: min(300px, 32vh);
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 4px;
+  }
+
+  .order-item {
+    flex-shrink: 0;
+  }
+
+  .order-empty {
+    flex-shrink: 0;
+  }
+}
+
+/* No celular, a lista cresce normalmente para não esconder os pedidos. */
+@media (max-width: 899px) {
+  .order-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .order-items {
+    max-height: 360px;
+    overflow-y: auto;
+  }
+}

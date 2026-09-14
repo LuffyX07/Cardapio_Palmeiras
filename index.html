@@ -11,9 +11,14 @@
 </head>
 <body>
 
-<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar entre modo claro e escuro">
-  <span class="theme-toggle-icon" aria-hidden="true">☾</span>
-</button>
+<div class="top-actions">
+  <button id="historico-toggle" class="icon-btn" type="button" aria-label="Ver histórico de pedidos">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button id="theme-toggle" class="icon-btn" type="button" aria-label="Alternar entre modo claro e escuro">
+    <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+  </button>
+</div>
 
 <div class="app">
 
@@ -77,10 +82,35 @@
       <p class="order-empty" id="order-empty">Seu carrinho está vazio. Adicione itens do cardápio ao lado.</p>
       <ul class="order-items" id="order-items"></ul>
 
+      <label class="field field-obs">
+        <span>Observações do pedido (opcional)</span>
+        <textarea id="observacoes-input" rows="2" maxlength="300" placeholder="Ex: sem cebola, ponto da carne bem passado…"></textarea>
+      </label>
+
+      <div class="cupom-row">
+        <label class="field field-cupom">
+          <span>Cupom de desconto</span>
+          <div class="cupom-input-wrap">
+            <input id="cupom-input" type="text" placeholder="Ex: PALMEIRAS10" autocomplete="off" />
+            <button type="button" id="btn-aplicar-cupom" class="btn-cupom">Aplicar</button>
+          </div>
+        </label>
+        <p class="cupom-feedback" id="cupom-feedback" hidden></p>
+        <div class="cupom-aplicado" id="cupom-aplicado" hidden>
+          <span id="cupom-aplicado-texto"></span>
+          <button type="button" id="btn-remover-cupom">remover</button>
+        </div>
+      </div>
+
       <div class="order-totals">
         <div class="totals-row">
           <span>Subtotal</span>
           <span id="subtotal-value">R$ 0,00</span>
+        </div>
+
+        <div class="totals-row" id="desconto-row" hidden>
+          <span>Desconto</span>
+          <span id="desconto-value">− R$ 0,00</span>
         </div>
 
         <label class="garcom-toggle">
@@ -99,6 +129,29 @@
         </div>
       </div>
 
+      <div class="pagamento-block">
+        <h3>Forma de pagamento</h3>
+        <label class="field">
+          <span>Como você vai pagar?</span>
+          <span class="select-wrap">
+            <select id="pagamento-select">
+              <option value="">Selecione…</option>
+            </select>
+            <svg class="sort-select-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </label>
+
+        <div class="troco-block" id="troco-block" hidden>
+          <label class="field">
+            <span>Valor pago em dinheiro</span>
+            <input id="valor-pago-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="R$ 0,00" />
+          </label>
+          <div class="troco-info" id="troco-info"></div>
+        </div>
+      </div>
+
       <form class="customer-form" id="customer-form" novalidate>
         <h3>Dados do cliente</h3>
         <label class="field">
@@ -110,7 +163,7 @@
           <input id="cliente-mesa" type="text" placeholder="Nº da mesa" />
         </label>
         <p class="form-error" id="form-error" role="alert" hidden></p>
-        <button type="submit" class="btn-finalizar" id="btn-finalizar">Finalizar pedido</button>
+        <button type="submit" class="btn-finalizar" id="btn-finalizar">Revisar pedido</button>
       </form>
     </aside>
 
@@ -122,6 +175,31 @@
 
 </div>
 
+<!-- Modal de confirmação: revisão antes da finalização definitiva -->
+<div class="modal-overlay" id="modal-confirmar-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmar-title">
+    <button class="modal-close" id="confirmar-close" type="button" aria-label="Fechar e continuar editando">×</button>
+    <p class="modal-kicker">Confira antes de enviar</p>
+    <h2 id="confirmar-title" class="modal-order-number">Confirme seu pedido</h2>
+
+    <dl class="resumo-cliente" id="confirmar-cliente"></dl>
+
+    <ul class="resumo-itens" id="confirmar-itens"></ul>
+
+    <p class="resumo-observacoes" id="confirmar-observacoes" hidden></p>
+
+    <div class="resumo-totais" id="confirmar-totais"></div>
+
+    <p class="resumo-pagamento" id="confirmar-pagamento"></p>
+
+    <div class="modal-actions">
+      <button class="btn-voltar" id="btn-voltar-editar" type="button">Voltar e editar</button>
+      <button class="btn-novo-pedido btn-confirmar-envio" id="btn-confirmar-envio" type="button">Confirmar pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de sucesso: exibido após a finalização definitiva -->
 <div class="modal-overlay" id="modal-overlay" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <button class="modal-close" id="modal-close" type="button" aria-label="Fechar resumo">×</button>
@@ -132,9 +210,24 @@
 
     <ul class="resumo-itens" id="resumo-itens"></ul>
 
+    <p class="resumo-observacoes" id="resumo-observacoes" hidden></p>
+
     <div class="resumo-totais" id="resumo-totais"></div>
 
+    <p class="resumo-pagamento" id="resumo-pagamento"></p>
+
     <button class="btn-novo-pedido" id="btn-novo-pedido" type="button">Fazer novo pedido</button>
+  </div>
+</div>
+
+<!-- Modal de histórico de pedidos -->
+<div class="modal-overlay" id="modal-historico-overlay" hidden>
+  <div class="modal modal-historico" role="dialog" aria-modal="true" aria-labelledby="historico-title">
+    <button class="modal-close" id="historico-close" type="button" aria-label="Fechar histórico">×</button>
+    <p class="modal-kicker">Pedidos anteriores</p>
+    <h2 id="historico-title" class="modal-order-number">Histórico de pedidos</h2>
+    <p class="historico-vazio" id="historico-vazio">Nenhum pedido finalizado ainda.</p>
+    <ul class="historico-lista" id="historico-lista"></ul>
   </div>
 </div>
 
